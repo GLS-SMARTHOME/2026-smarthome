@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Light Pro 2026</title>
+<style>
+:root { --accent-glow: rgba(0,210,255,0.6); --accent-solid:#00d2ff; }
+body { background:#0f0f1a; min-height:100vh; display:flex; justify-content:center; align-items:center; font-family:sans-serif; margin:0; color:white; }
+.glass-panel { background: rgba(255,255,255,0.02); backdrop-filter:blur(25px); border-radius:30px; width:380px; height:600px; display:flex; flex-direction:column; overflow:hidden;}
+.header { padding:25px; text-align:left; background: rgba(255,255,255,0.03);}
+.list-viewport { flex:1; overflow-y:auto; padding:10px 0; scrollbar-width:none; }
+.list-viewport::-webkit-scrollbar { display:none; }
+.list-item { display:flex; justify-content:space-between; align-items:center; padding:18px 20px; margin:10px 15px; border-radius:20px; background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); transition:all 0.4s ease; position:relative; }
+.list-item:has(.switch:checked) { background: rgba(0,210,255,0.1); border-color: rgba(0,210,255,0.3); box-shadow:0 0 20px rgba(0,210,255,0.15); }
+.label-box span:first-child { display:block; font-weight:600; transition: color 0.3s; }
+.list-item:has(.switch:checked) .label-box span:first-child { color: var(--accent-solid); text-shadow:0 0 10px var(--accent-glow);}
+.switch { appearance:none; width:44px; height:24px; background: rgba(255,255,255,0.1); border-radius:20px; position:relative; cursor:pointer; transition:0.3s; }
+.switch:checked { background: var(--accent-solid); }
+.switch::before { content:''; position:absolute; width:18px; height:18px; background:white; border-radius:50%; top:3px; left:3px; transition:0.3s cubic-bezier(0.45,0.05,0.55,0.95);}
+.switch:checked::before { transform: translateX(20px); }
+.feedback { padding:10px; text-align:center; font-size:0.8rem; opacity:0.7; transition:opacity 0.3s; }
+</style>
+</head>
+<body>
+<div class="glass-panel">
+    <div class="header">
+        <h2 style="margin:0;">Controle de Luz</h2>
+        <p style="margin:5px 0 0; font-size:0.8rem; opacity:0.5;">Ambientes Detectados</p>
+    </div>
+    <div class="list-viewport" id="list"></div>
+    <div class="feedback" id="feedback">Conecte-se à rede do ESP32 para controlar as luzes</div>
+</div>
+
+
+<script>
+const rooms = ["Cozinha","Sala de Estar","Suíte Master","Banheiro","Escritório","Corredor","Garagem","Varanda","Jardim","Hall","Lavanderia","Quarto Visitas","Sótão","Piscina","Fachada"];
+const list = document.getElementById('list');
+const feedback = document.getElementById('feedback');
+
+
+// Generate list items
+rooms.forEach((name,i)=>{
+    const item = document.createElement('div');
+    item.className='list-item';
+    item.innerHTML = `<div class="label-box"><span>${name}</span></div><input type="checkbox" class="switch" id="switch${i}">`;
+    list.appendChild(item);
+});
+
+
+// Fetch and update states from ESP
+function updateStates(){
+    fetch('/status').then(res=>res.json()).then(states=>{
+        states.forEach((state,i)=>{
+            const sw = document.getElementById(`switch${i}`);
+            if(sw.checked !== state) sw.checked = state;
+        });
+    });
+}
+
+
+// Switch listeners
+rooms.forEach((name,i)=>{
+    const sw = document.getElementById(`switch${i}`);
+    sw.addEventListener('change', ()=>{
+        fetch(`/toggle?index=${i}&state=${sw.checked}`);
+        feedback.textContent = `${name} ${sw.checked?'ligada':'desligada'}`;
+        feedback.style.opacity = 1;
+        setTimeout(()=>feedback.style.opacity=0.7, 2000);
+    });
+});
+
+
+// Master switch
+const masterSwitch = document.createElement('div');
+masterSwitch.className='list-item';
+masterSwitch.innerHTML = `<div class="label-box"><span>Todos</span></div><input type="checkbox" id="allSwitch" class="switch">`;
+list.prepend(masterSwitch);
+document.getElementById('allSwitch').addEventListener('change', ()=>{
+    const state = document.getElementById('allSwitch').checked;
+    fetch(`/toggleAll?state=${state}`);
+    document.querySelectorAll('.list-item .switch').forEach(s=>s.checked=state);
+    feedback.textContent = `Todas as luzes ${state?'ligadas':'desligadas'}`;
+    feedback.style.opacity = 1;
+    setTimeout(()=>feedback.style.opacity=0.7, 2000);
+});
+
+
+// Polling for real-time sync
+setInterval(updateStates, 1000);
+</script>
+</body>
+</html>
