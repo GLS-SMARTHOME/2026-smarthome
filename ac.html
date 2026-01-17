@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC Sync 2026</title>
+    <style>
+        :root { --bg: #090a0c; --card: #15171c; --accent: #38bdf8; --text: #f8fafc; --dim: #94a3b8; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 340px; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); }
+        .nav { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
+        .back { background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 8px 15px; border-radius: 12px; cursor: pointer; }
+        .main-tile { grid-column: span 2; background: var(--card); padding: 30px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .temp { font-size: 5.5rem; font-weight: 800; margin: 0; line-height:1; }
+        .tile { background: var(--card); border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); font-size: 1.8rem; }
+        .modes { grid-column: span 2; display: flex; gap: 8px; }
+        .m-btn { flex: 1; padding: 15px; border-radius: 12px; border: none; background: var(--card); color: var(--dim); font-weight: bold; cursor: pointer; }
+        .m-btn.active { background: var(--accent); color: var(--bg); }
+        .pwr { grid-column: span 2; background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; font-weight: bold; }
+        .off { opacity: 0.2; pointer-events: none; filter: grayscale(1); }
+    </style>
+</head>
+<body>
+<div class="bento" id="ac">
+    <div class="nav"><button class="back" onclick="location.href='https://google.com'">← Back</button><b>LIVING ROOM</b></div>
+    <div id="ui-body" class="main-tile">
+        <h1 class="temp" id="tDisp">22°</h1>
+        <small id="mLabel" style="color:var(--accent); letter-spacing:2px; font-weight:bold;">COOLING</small>
+    </div>
+    <div class="tile" onclick="adj(-1)">−</div><div class="tile" onclick="adj(1)">+</div>
+    <div class="modes">
+        <button id="bC" class="m-btn active" onclick="setM('cool')">COOL</button>
+        <button id="bH" class="m-btn" onclick="setM('heat')">HEAT</button>
+    </div>
+    <div class="pwr" onclick="tog()" id="pBtn">POWER: ON</div>
+</div>
+<script>
+    let t=22, m='cool', p=true;
+    let ws = new WebSocket(`ws://${window.location.hostname}/ws`);
+
+
+    ws.onmessage = (e) => {
+        let data = JSON.parse(e.data);
+        t = data.temp; m = data.mode; p = data.power;
+        updateUI();
+    };
+
+
+    function updateUI() {
+        document.getElementById('tDisp').innerText = t + "°";
+        document.getElementById('pBtn').innerText = p ? "POWER: ON" : "POWER: OFF";
+        document.getElementById('ui-body').classList.toggle('off', !p);
+        document.getElementById('bC').classList.toggle('active', m === 'cool');
+        document.getElementById('bH').classList.toggle('active', m === 'heat');
+        document.getElementById('mLabel').innerText = m.toUpperCase();
+    }
+
+
+    function send(){ if(ws.readyState===1) ws.send(JSON.stringify({temp:t,mode:m,power:p})); }
+    function tog(){ p=!p; send(); }
+    function adj(v){
+        let next = t + v;
+        if(next >= 16 && next <= 30) { t = next; send(); }
+    }
+    function setM(mode){ m=mode; send(); }
+    ws.onclose = () => setTimeout(()=>location.reload(), 2000);
+</script>
+</body>
+</html>
