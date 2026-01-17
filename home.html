@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Control iOS 19</title>
+<style>
+:root {
+  --ios-system-bg: #000000; 
+  --ios-secondary-bg: #1C1C1E; 
+  --ios-active-blue: #32ADE6;
+  --ios-label: #FFFFFF; 
+  --ios-active-label: #000000;
+}
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; 
+  background: var(--ios-system-bg); 
+  color: var(--ios-label); 
+  margin:0; 
+  padding:40px 24px; 
+  display:flex; 
+  justify-content:center; 
+}
+.container { width:100%; max-width:400px; }
+h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.tile { 
+  background: var(--ios-secondary-bg); 
+  border-radius:16px; 
+  padding:16px; 
+  height:100px; 
+  display:flex; 
+  flex-direction:column; 
+  justify-content:space-between; 
+  cursor:pointer; 
+  text-decoration:none; 
+  color: var(--ios-label); 
+  transition: transform 0.1s, background 0.2s; 
+}
+.tile:active { transform: scale(0.96); }
+.icon-wrap { 
+  width:36px; height:36px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  border-radius:50%; 
+  background: rgba(255,255,255,0.1); 
+  font-size:20px; 
+  color: var(--ios-active-blue); 
+  transition: background 0.2s, color 0.2s; 
+}
+.label { 
+  font-weight:600; 
+  font-size:15px; 
+  text-align:left; 
+  color:var(--ios-label); 
+  transition:color 0.2s; 
+}
+.tv-icon { 
+  width:24px; height:18px; 
+  border:2px solid currentColor; 
+  border-radius:2px; 
+  position:relative; 
+}
+.tv-icon::after { 
+  content:''; 
+  position:absolute; 
+  bottom:-4px; 
+  left:50%; 
+  transform:translateX(-50%); 
+  width:6px; 
+  height:2px; 
+  background:currentColor; 
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Ma maison</h1>
+<div class="grid">
+
+<a href="https://example.com/tv" class="tile">
+  <div class="icon-wrap"><div class="tv-icon"></div></div>
+  <span class="label">TÉLÉVISION</span>
+</a>
+
+<a href="https://example.com/light" class="tile">
+  <div class="icon-wrap">💡</div>
+  <span class="label">LUMIÈRE</span>
+</a>
+
+<a href="https://example.com/ac" class="tile">
+  <div class="icon-wrap">❄️</div>
+  <span class="label">CLIM</span>
+</a>
+
+<a href="https://example.com/door" class="tile">
+  <div class="icon-wrap" id="door-icon">🔒</div>
+  <span class="label">SERRURE</span>
+</a>
+
+</div>
+</div>
+</body>
+</html>
