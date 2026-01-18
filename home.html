@@ -115,78 +115,55 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
   <span class="label">SERRURE</span>
 </a>
 
-<!-- Scene Buttons -->
-<a href="#" class="tile" onclick="activateScene('MATIN'); return false;">
-  <div class="icon-wrap">☀️</div>
-  <span class="label">SCÈNE MATIN</span>
-</a>
-
-<a href="#" class="tile" onclick="activateScene('AU REVOIR'); return false;">
-  <div class="icon-wrap">🚪</div>
-  <span class="label">SCÈNE AU REVOIR</span>
+<!-- Scenes (iOS-style popup) -->
+<a href="#" class="tile" onclick="showSceneSheet(); return false;">
+  <div class="icon-wrap">🎬</div>
+  <span class="label">SCÈNES</span>
 </a>
 
 </div>
 </div>
 
 <script>
-// Universal navigation with 404 check
+// ==================== Navigation ====================
 function navigateWithTimeout(event, url) {
   event.preventDefault();
+  if(window.pageTimeout) clearTimeout(window.pageTimeout);
 
-  // Clear previous timeout if exists
-  if (window.pageTimeout) clearTimeout(window.pageTimeout);
+  // Simple redirect for ESP32
+  window.location.href = url;
 
-  fetch(url, { method: 'HEAD' })
-    .then(response => {
-      if (response.ok) {
-        window.location.href = url;
-      } else {
-        window.location.href = "https://www.congopokemon.store/2026-smarthome/home";
-      }
-    })
-    .catch(() => {
-      window.location.href = "https://www.congopokemon.store/2026-smarthome/home";
-    });
-
-  // Safety fallback
   window.pageTimeout = setTimeout(() => {
     window.location.href = "https://www.congopokemon.store/2026-smarthome/home";
   }, 5000);
-
   return false;
 }
 
-// Door toggle
+// ==================== Door ====================
+let doorLocked = true;
 function toggleDoorChoice() {
   const overlay = document.createElement('div');
   overlay.style.cssText = `
-    position: fixed;
-    inset: 0;
+    position: fixed; inset:0;
     background: rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    opacity:0;
-    transition: opacity 0.2s ease-in-out;
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999; opacity:0; transition: opacity 0.2s;
   `;
   document.body.appendChild(overlay);
   requestAnimationFrame(() => overlay.style.opacity = 1);
-
-  overlay.addEventListener('click', (e) => { if(e.target===overlay) overlay.remove(); });
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
 
   const popup = document.createElement('div');
   popup.style.cssText = `
     background: var(--ios-secondary-bg);
-    padding: 20px;
-    border-radius: 16px;
-    width: 280px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    padding:20px;
+    border-radius:16px;
+    width:280px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
   `;
 
   const title = document.createElement('div');
@@ -207,20 +184,12 @@ function toggleDoorChoice() {
 
   const lockBtn = document.createElement('button');
   lockBtn.textContent="🔒 Verrouiller";
-  lockBtn.style.cssText=`
-    flex:1;margin-right:6px;padding:10px;border-radius:12px;border:none;
-    background: var(--ios-active-blue); color: var(--ios-active-label);
-    font-weight:600;cursor:pointer;
-  `;
+  lockBtn.style.cssText=`flex:1;margin-right:6px;padding:10px;border-radius:12px;border:none;background: var(--ios-active-blue); color: var(--ios-active-label); font-weight:600;cursor:pointer;`;
   lockBtn.onclick=()=>{ setDoor(true); overlay.remove(); };
 
   const unlockBtn = document.createElement('button');
   unlockBtn.textContent="🔓 Déverrouiller";
-  unlockBtn.style.cssText=`
-    flex:1;margin-left:6px;padding:10px;border-radius:12px;border:none;
-    background: var(--ios-active-label); color: var(--ios-system-bg);
-    font-weight:600;cursor:pointer;
-  `;
+  unlockBtn.style.cssText=`flex:1;margin-left:6px;padding:10px;border-radius:12px;border:none;background: var(--ios-active-label); color: var(--ios-system-bg); font-weight:600;cursor:pointer;`;
   unlockBtn.onclick=()=>{ setDoor(false); overlay.remove(); };
 
   btnContainer.appendChild(lockBtn);
@@ -229,18 +198,15 @@ function toggleDoorChoice() {
   overlay.appendChild(popup);
 }
 
-// Door state
-let doorLocked = true;
 function setDoor(locked) {
   doorLocked = locked;
   const icon = document.getElementById('door-icon');
   icon.textContent = doorLocked ? '🔒' : '🔓';
   icon.classList.toggle('unlocked', !doorLocked);
-
   showToast(doorLocked ? "Verrouillé 🔒" : "Déverrouillé 🔓");
 }
 
-// Toast popup (works multiple times)
+// ==================== Toast ====================
 function showToast(message) {
   const popup = document.createElement('div');
   popup.textContent = message;
@@ -261,23 +227,102 @@ function showToast(message) {
   `;
   document.body.appendChild(popup);
   requestAnimationFrame(()=> popup.style.opacity=1);
-  setTimeout(()=>{
-    popup.style.opacity=0;
-    setTimeout(()=>popup.remove(),300);
-  },1500);
+  setTimeout(()=>{ popup.style.opacity=0; setTimeout(()=>popup.remove(),300); },1500);
 }
 
-// Scene activation
+// ==================== Scenes (iOS-style sheet) ====================
+const scenes = ["MATIN", "AU REVOIR", "NUIT", "SOIRÉE"];
+
+function showSceneSheet() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed; inset:0;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.style.opacity = 1);
+  overlay.addEventListener('click', e => { if(e.target===overlay) dismissSheet(); });
+
+  const sheet = document.createElement('div');
+  sheet.style.cssText = `
+    width: 100%;
+    max-width: 400px;
+    background: var(--ios-secondary-bg);
+    border-radius: 20px 20px 0 0;
+    padding: 12px 0;
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+  `;
+
+  scenes.forEach(scene => {
+    const btn = document.createElement('button');
+    btn.textContent = scene;
+    btn.style.cssText = `
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 16px;
+      color: var(--ios-label);
+      cursor: pointer;
+      transition: background 0.2s;
+    `;
+    btn.onmouseover = () => btn.style.background = 'rgba(255,255,255,0.1)';
+    btn.onmouseleave = () => btn.style.background = 'transparent';
+    btn.onclick = () => { activateScene(scene); dismissSheet(); };
+    sheet.appendChild(btn);
+
+    const divider = document.createElement('div');
+    divider.style.height = '1px';
+    divider.style.background = 'rgba(255,255,255,0.05)';
+    sheet.appendChild(divider);
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = "Annuler";
+  cancelBtn.style.cssText = `
+    background: var(--ios-secondary-bg);
+    margin-top: 8px;
+    margin-bottom: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px;
+    border-radius: 16px;
+    color: var(--ios-active-blue);
+    border: none;
+    cursor: pointer;
+  `;
+  cancelBtn.onclick = dismissSheet;
+  sheet.appendChild(cancelBtn);
+
+  overlay.appendChild(sheet);
+  requestAnimationFrame(() => sheet.style.transform = 'translateY(0)');
+
+  function dismissSheet() {
+    sheet.style.transform = 'translateY(100%)';
+    overlay.style.opacity = 0;
+    setTimeout(() => overlay.remove(), 300);
+  }
+}
+
 function activateScene(sceneName) {
   showToast(sceneName + " activée !");
 }
 
-// Global page timeout fallback
+// ==================== Page timeout ====================
 const PAGE_TIMEOUT_MS=5000;
-window.pageTimeout=setTimeout(()=>{
-  window.location.href="https://www.congopokemon.store/2026-smarthome/home";
-}, PAGE_TIMEOUT_MS);
-
+window.pageTimeout=setTimeout(()=>{ window.location.href="https://www.congopokemon.store/2026-smarthome/home"; }, PAGE_TIMEOUT_MS);
 window.addEventListener("load",()=>clearTimeout(window.pageTimeout));
 ['click','keydown','touchstart'].forEach(evt=>window.addEventListener(evt,()=>clearTimeout(window.pageTimeout)));
 </script>
