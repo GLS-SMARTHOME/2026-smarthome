@@ -36,6 +36,8 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
   text-decoration:none; 
   color: var(--ios-label); 
   transition: transform 0.1s, background 0.2s; 
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .tile:active { transform: scale(0.96); }
 .icon-wrap { 
@@ -80,38 +82,38 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
 <div class="grid">
 
 <!-- TV -->
-<a href="https://www.congopokemon.store/2026-smarthome/tv" class="tile" onclick="return navigateWithTimeout(this.href)">
+<a href="https://www.congopokemon.store/2026-smarthome/tv" class="tile" onclick="return navigateWithTimeout(event, this.href)">
   <div class="icon-wrap"><div class="tv-icon"></div></div>
   <span class="label">TÉLÉ SALON</span>
 </a>
   
-<a href="https://www.congopokemon.store/2026-smarthome/tv" class="tile" onclick="return navigateWithTimeout(this.href)">
+<a href="https://www.congopokemon.store/2026-smarthome/tv" class="tile" onclick="return navigateWithTimeout(event, this.href)">
   <div class="icon-wrap"><div class="tv-icon"></div></div>
   <span class="label">TÉLÉ CHAMBRE</span>
 </a>
 
 <!-- AC -->
-<a href="https://www.congopokemon.store/2026-smarthome/ac" class="tile" onclick="return navigateWithTimeout(this.href)">
+<a href="https://www.congopokemon.store/2026-smarthome/ac" class="tile" onclick="return navigateWithTimeout(event, this.href)">
   <div class="icon-wrap">❄️</div>
   <span class="label">CLIM SALON</span>
 </a>
   
-<a href="https://www.congopokemon.store/2026-smarthome/ac" class="tile" onclick="return navigateWithTimeout(this.href)">
+<a href="https://www.congopokemon.store/2026-smarthome/ac" class="tile" onclick="return navigateWithTimeout(event, this.href)">
   <div class="icon-wrap">❄️</div>
   <span class="label">CLIM CHAMBRE</span>
 </a>
 
 <!-- Lights -->
-<a href="https://www.congopokemon.store/2026-smarthome/lights" class="tile" onclick="return navigateWithTimeout(this.href)">
+<a href="https://www.congopokemon.store/2026-smarthome/lights" class="tile" onclick="return navigateWithTimeout(event, this.href)">
   <div class="icon-wrap">💡</div>
   <span class="label">LUMIÈRES</span>
 </a>
-<a href="#" class="tile" onclick="toggleDoorChoice(); return false;">
+
+<!-- Door -->
+<a href="#" class="tile" onclick="toggleDoorChoice(); return false;" role="button">
   <div class="icon-wrap" id="door-icon">🔒</div>
   <span class="label">SERRURE</span>
 </a>
-
-
 
 <!-- Scene Buttons -->
 <a href="#" class="tile" onclick="activateScene('MATIN'); return false;">
@@ -128,9 +130,35 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
 </div>
 
 <script>
+// Universal navigation with 404 check
+function navigateWithTimeout(event, url) {
+  event.preventDefault();
+
+  // Clear previous timeout if exists
+  if (window.pageTimeout) clearTimeout(window.pageTimeout);
+
+  fetch(url, { method: 'HEAD' })
+    .then(response => {
+      if (response.ok) {
+        window.location.href = url;
+      } else {
+        window.location.href = "https://www.congopokemon.store/2026-smarthome/home";
+      }
+    })
+    .catch(() => {
+      window.location.href = "https://www.congopokemon.store/2026-smarthome/home";
+    });
+
+  // Safety fallback
+  window.pageTimeout = setTimeout(() => {
+    window.location.href = "https://www.congopokemon.store/2026-smarthome/home";
+  }, 5000);
+
+  return false;
+}
+
 // Door toggle
 function toggleDoorChoice() {
-  // Create overlay
   const overlay = document.createElement('div');
   overlay.style.cssText = `
     position: fixed;
@@ -140,14 +168,14 @@ function toggleDoorChoice() {
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    opacity:0;
+    transition: opacity 0.2s ease-in-out;
   `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.style.opacity = 1);
 
-  // Dismiss if clicked outside popup
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
+  overlay.addEventListener('click', (e) => { if(e.target===overlay) overlay.remove(); });
 
-  // Create popup container
   const popup = document.createElement('div');
   popup.style.cssText = `
     background: var(--ios-secondary-bg);
@@ -161,65 +189,47 @@ function toggleDoorChoice() {
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   `;
 
-  // Title
   const title = document.createElement('div');
   title.textContent = "SERRURE";
-  title.style.fontWeight = '600';
-  title.style.fontSize = '18px';
+  title.style.fontWeight='600';
+  title.style.fontSize='18px';
   popup.appendChild(title);
 
-  // Message
   const msg = document.createElement('div');
   msg.textContent = "Que voulez-vous faire ?";
-  msg.style.fontSize = '15px';
-  msg.style.color = '#ccc';
+  msg.style.fontSize='15px';
+  msg.style.color='#ccc';
   popup.appendChild(msg);
 
-  // Buttons container
   const btnContainer = document.createElement('div');
-  btnContainer.style.display = 'flex';
-  btnContainer.style.justifyContent = 'space-between';
+  btnContainer.style.display='flex';
+  btnContainer.style.justifyContent='space-between';
 
-  // Lock button
   const lockBtn = document.createElement('button');
-  lockBtn.textContent = "🔒 Verrouiller";
-  lockBtn.style.cssText = `
-    flex: 1;
-    margin-right: 6px;
-    padding: 10px;
-    border-radius: 12px;
-    border: none;
-    background: var(--ios-active-blue);
-    color: var(--ios-active-label);
-    font-weight: 600;
-    cursor: pointer;
+  lockBtn.textContent="🔒 Verrouiller";
+  lockBtn.style.cssText=`
+    flex:1;margin-right:6px;padding:10px;border-radius:12px;border:none;
+    background: var(--ios-active-blue); color: var(--ios-active-label);
+    font-weight:600;cursor:pointer;
   `;
-  lockBtn.onclick = () => { setDoor(true); overlay.remove(); };
+  lockBtn.onclick=()=>{ setDoor(true); overlay.remove(); };
 
-  // Unlock button
   const unlockBtn = document.createElement('button');
-  unlockBtn.textContent = "🔓 Déverrouiller";
-  unlockBtn.style.cssText = `
-    flex: 1;
-    margin-left: 6px;
-    padding: 10px;
-    border-radius: 12px;
-    border: none;
-    background: var(--ios-active-label);
-    color: var(--ios-system-bg);
-    font-weight: 600;
-    cursor: pointer;
+  unlockBtn.textContent="🔓 Déverrouiller";
+  unlockBtn.style.cssText=`
+    flex:1;margin-left:6px;padding:10px;border-radius:12px;border:none;
+    background: var(--ios-active-label); color: var(--ios-system-bg);
+    font-weight:600;cursor:pointer;
   `;
-  unlockBtn.onclick = () => { setDoor(false); overlay.remove(); };
+  unlockBtn.onclick=()=>{ setDoor(false); overlay.remove(); };
 
   btnContainer.appendChild(lockBtn);
   btnContainer.appendChild(unlockBtn);
   popup.appendChild(btnContainer);
   overlay.appendChild(popup);
-  document.body.appendChild(overlay);
 }
 
-// Set door state
+// Door state
 let doorLocked = true;
 function setDoor(locked) {
   doorLocked = locked;
@@ -227,16 +237,16 @@ function setDoor(locked) {
   icon.textContent = doorLocked ? '🔒' : '🔓';
   icon.classList.toggle('unlocked', !doorLocked);
 
-  showDoorPopup(doorLocked ? "Verrouillé 🔒" : "Déverrouillé 🔓");
+  showToast(doorLocked ? "Verrouillé 🔒" : "Déverrouillé 🔓");
 }
 
-// Popup feedback
-function showDoorPopup(message) {
+// Toast popup (works multiple times)
+function showToast(message) {
   const popup = document.createElement('div');
   popup.textContent = message;
-  popup.style.cssText = `
+  popup.style.cssText=`
     position: fixed;
-    top: 20%;
+    bottom: 10%;
     left: 50%;
     transform: translateX(-50%);
     background: var(--ios-active-blue);
@@ -250,42 +260,26 @@ function showDoorPopup(message) {
     transition: opacity 0.3s ease-in-out;
   `;
   document.body.appendChild(popup);
-  requestAnimationFrame(() => popup.style.opacity = 1);
-  setTimeout(() => {
-    popup.style.opacity = 0;
-    setTimeout(() => popup.remove(), 300);
-  }, 1500);
+  requestAnimationFrame(()=> popup.style.opacity=1);
+  setTimeout(()=>{
+    popup.style.opacity=0;
+    setTimeout(()=>popup.remove(),300);
+  },1500);
 }
-
-
 
 // Scene activation
 function activateScene(sceneName) {
-  alert(sceneName + " activée !");
-  // Here you can add code to send command to ESP32 or smart home backend
+  showToast(sceneName + " activée !");
 }
 
-// Universal navigation with timeout
-function navigateWithTimeout(url) {
-  event.preventDefault();
-  window.open(url, "_self");
-  setTimeout(() => {
-    if (window.location.href !== url) {
-      window.location.href = "/"; // main dashboard page
-    }
-  }, 5000); // 5 seconds timeout
-  return false;
-}
-
-// Global page timeout: go back home if page unresponsive
-const PAGE_TIMEOUT_MS = 5000;
-let pageTimeout = setTimeout(() => {
-  window.location.href = "https://www.congopokemon.store/2026-smarthome/home"; // main dashboard
+// Global page timeout fallback
+const PAGE_TIMEOUT_MS=5000;
+window.pageTimeout=setTimeout(()=>{
+  window.location.href="https://www.congopokemon.store/2026-smarthome/home";
 }, PAGE_TIMEOUT_MS);
-window.addEventListener("load", () => clearTimeout(pageTimeout));
-['click','keydown','touchstart'].forEach(evt => {
-  window.addEventListener(evt, () => clearTimeout(pageTimeout));
-});
+
+window.addEventListener("load",()=>clearTimeout(window.pageTimeout));
+['click','keydown','touchstart'].forEach(evt=>window.addEventListener(evt,()=>clearTimeout(window.pageTimeout)));
 </script>
 </body>
 </html>
