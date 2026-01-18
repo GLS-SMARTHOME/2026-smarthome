@@ -135,13 +135,13 @@ body {
 }
 
 .mute {
-    width: 64px;
-    height: 64px;
+    width:  50px;
+    height: 50px;
     border-radius: 50%;
     background: var(--danger);
     border: none;
     color: white;
-    font-size: 22px;
+    font-size: 20px;
 }
 
 .undo {
@@ -176,17 +176,81 @@ body {
     color: white;
     font-size: 15px;
 }
+.rocker-row {
+    display: flex;
+    justify-content: space-around; /* spaces VOLUME, D-PAD, CHANNEL evenly */
+    align-items: center;
+    gap: 16px;
+}
+
+.dpad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Arrows */
+.arrow-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.arrow {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.15);
+    font-size: 20px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrow:active {
+    background: var(--accent);
+    color: black;
+    transform: scale(0.95);
+}
+
+/* OK button */
+.ok {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ok:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 6px var(--accent);
+}
+
+
 </style>
 </head>
 
 <body>
 <div class="remote">
+<div class="top">
+    <button class="back" onclick="location.href='https://congopokemon.store/2026-smarthome/home'">← Back</button>
+    <div class="top-right-label">TV ROOM</div>
+</div>
 
-    <!-- TOP -->
-    <div class="top">
-        <button class="back" onclick="location.href='https://congopokemon.store/2026-smarthome/home'">← Back</button>
-        <button class="power" onclick="send('POWER')">⏻</button>
-    </div>
+<div style="display:flex; justify-content:center; margin:16px 0;">
+    <button class="power" onclick="send('POWER')">⏻</button>
+</div>
+
 
     <!-- NUMPAD -->
     <div class="numpad">
@@ -203,41 +267,53 @@ body {
         <button class="num-btn" onclick="send('0')">0</button>
         <div></div>
     </div>
-
-    <!-- CONTROLS -->
     <div class="controls">
-        <div class="rocker-row">
+    <div class="rocker-row">
 
-            <div class="rocker-wrap">
-                <div class="rocker">
-                    <button onclick="send('VOL_UP')">+</button>
-                    <div class="divider"></div>
-                    <button onclick="send('VOL_DOWN')">−</button>
-                </div>
-                <div class="label">VOLUME</div>
+        <!-- VOLUME ROCKER -->
+        <div class="rocker-wrap">
+            <div class="rocker">
+                <button onclick="send('VOL_UP')">+</button>
+                <div class="divider"></div>
+                <button onclick="send('VOL_DOWN')">−</button>
             </div>
-
-            <div class="center">
-                <button class="mute" onclick="send('MUTE')">🔇</button>
-                <button class="undo" onclick="send('UNDO')">⟲</button>
-                <div class="label">UNDO</div>
-            </div>
-
-            <div class="rocker-wrap">
-                <div class="rocker">
-                    <button onclick="send('CH_UP')">▲</button>
-                    <div class="divider"></div>
-                    <button onclick="send('CH_DOWN')">▼</button>
-                </div>
-                <div class="label">CHANNEL</div>
-            </div>
-
+            <div class="label">VOLUME</div>
         </div>
 
-        <div class="menu">
-            <button onclick="send('HOME')">MENU PRINCIPAL</button>
+        <!-- D-PAD CENTER -->
+        <div class="dpad">
+            <div class="arrow-row">
+                <button class="arrow up" onclick="send('UP')">▲</button>
+            </div>
+            <div class="arrow-row middle">
+                <button class="arrow left" onclick="send('LEFT')">◀</button>
+                <button class="ok" onclick="send('OK')">OK</button>
+                <button class="arrow right" onclick="send('RIGHT')">▶</button>
+            </div>
+            <div class="arrow-row">
+                <button class="arrow down" onclick="send('DOWN')">▼</button>
+            </div>
+            <div class="label">NAVIGATE</div>
         </div>
+
+        <!-- CHANNEL ROCKER -->
+        <div class="rocker-wrap">
+            <div class="rocker">
+                <button onclick="send('CH_UP')">▲</button>
+                <div class="divider"></div>
+                <button onclick="send('CH_DOWN')">▼</button>
+            </div>
+            <div class="label">CHANNEL</div>
+        </div>
+
     </div>
+
+    <!-- MENU BUTTON -->
+    <div class="menu">
+        <button onclick="send('HOME')">MENU PRINCIPAL</button>
+    </div>
+</div>
+
 
 </div>
 
