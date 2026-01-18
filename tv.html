@@ -48,15 +48,23 @@ body {
     border-radius: 14px;
     font-size: 14px;
 }
-
 .power {
-    width: 54px;
-    height: 54px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     border: 2px solid var(--danger);
-    background: none;
+    background: var(--glass);
     color: var(--danger);
-    font-size: 22px;
+    font-size: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px var(--danger);
+}
+.power-wrap {
+    display: flex;
+    justify-content: center; /* horizontal center */
+    margin: 16px 0;          /* spacing from top */
 }
 
 /* === NUMPAD === */
@@ -272,9 +280,11 @@ body {
     <div class="top-right-label">TV ROOM</div>
 </div>
 
-<div style="display:flex; justify-content:center; margin:16px 0;">
+<!-- CENTER POWER BUTTON -->
+<div class="power-wrap">
     <button class="power" onclick="send('POWER')">⏻</button>
 </div>
+
 
 
     <!-- NUMPAD -->
