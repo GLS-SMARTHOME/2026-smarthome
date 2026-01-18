@@ -109,6 +109,26 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
   <span class="label">LUMIÈRES</span>
 </a>
 
+<!-- RGB LED / Dimmer -->
+<a href="https://www.congopokemon.store/2026-smarthome/dimmer" class="tile" onclick="return navigateWithTimeout(event, this.href)">
+  <div class="icon-wrap" style="
+    width: 24px; 
+    height: 24px; 
+    border-radius: 50%; 
+    background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+    animation: spin 3s linear infinite;
+  "></div>
+  <span class="label">LED RGB</span>
+</a>
+
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+
 <!-- Door -->
 <a href="#" class="tile" onclick="toggleDoorChoice(); return false;" role="button">
   <div class="icon-wrap" id="door-icon">🔒</div>
