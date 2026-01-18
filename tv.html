@@ -304,16 +304,24 @@ body {
     </div>
     <div class="controls">
     <div class="rocker-row">
+<!-- VOLUME ROCKER -->
+<div class="rocker-wrap">
+    <div class="rocker">
+        <button 
+            onmousedown="startVol('VOL_UP')" onmouseup="stopVol()"
+            ontouchstart="startVol('VOL_UP')" ontouchend="stopVol()">
+            +
+        </button>
+        <div class="divider"></div>
+        <button 
+            onmousedown="startVol('VOL_DOWN')" onmouseup="stopVol()"
+            ontouchstart="startVol('VOL_DOWN')" ontouchend="stopVol()">
+            −
+        </button>
+    </div>
+    <div class="label">VOLUME</div>
+</div>
 
-        <!-- VOLUME ROCKER -->
-        <div class="rocker-wrap">
-            <div class="rocker">
-                <button onclick="send('VOL_UP')">+</button>
-                <div class="divider"></div>
-                <button onclick="send('VOL_DOWN')">−</button>
-            </div>
-            <div class="label">VOLUME</div>
-        </div>
 
         <!-- D-PAD CENTER -->
         <div class="dpad">
@@ -368,6 +376,26 @@ function send(cmd) {
     if (navigator.vibrate) navigator.vibrate(40);
     fetch(`/ir?cmd=${cmd}`).catch(() => {});
 }
+<script>
+let volInterval = null;
+
+function send(cmd) {
+    if (navigator.vibrate) navigator.vibrate(40);
+    fetch(`/ir?cmd=${cmd}`).catch(() => {});
+}
+
+// Long press handler for volume buttons
+function startVol(cmd) {
+    send(cmd); // send once immediately
+    volInterval = setInterval(() => send(cmd), 200); // repeat every 200ms
+}
+
+function stopVol() {
+    clearInterval(volInterval);
+    volInterval = null;
+}
+</script>
+
 </script>
 
 </body>
