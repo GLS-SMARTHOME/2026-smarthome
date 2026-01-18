@@ -106,12 +106,12 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
   <div class="icon-wrap">💡</div>
   <span class="label">LUMIÈRES</span>
 </a>
-
-<!-- Door Lock -->
-<a href="#" class="tile" onclick="toggleDoor(); return false;">
+<a href="#" class="tile" onclick="toggleDoorChoice(); return false;">
   <div class="icon-wrap" id="door-icon">🔒</div>
   <span class="label">SERRURE</span>
 </a>
+
+
 
 <!-- Scene Buttons -->
 <a href="#" class="tile" onclick="activateScene('MATIN'); return false;">
@@ -129,11 +129,135 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
 
 <script>
 // Door toggle
-let doorLocked = true;
-function toggleDoor() {
-  doorLocked = !doorLocked;
-  document.getElementById('door-icon').textContent = doorLocked ? '🔒' : '🔓';
+function toggleDoorChoice() {
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  `;
+
+  // Dismiss if clicked outside popup
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+
+  // Create popup container
+  const popup = document.createElement('div');
+  popup.style.cssText = `
+    background: var(--ios-secondary-bg);
+    padding: 20px;
+    border-radius: 16px;
+    width: 280px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  `;
+
+  // Title
+  const title = document.createElement('div');
+  title.textContent = "SERRURE";
+  title.style.fontWeight = '600';
+  title.style.fontSize = '18px';
+  popup.appendChild(title);
+
+  // Message
+  const msg = document.createElement('div');
+  msg.textContent = "Que voulez-vous faire ?";
+  msg.style.fontSize = '15px';
+  msg.style.color = '#ccc';
+  popup.appendChild(msg);
+
+  // Buttons container
+  const btnContainer = document.createElement('div');
+  btnContainer.style.display = 'flex';
+  btnContainer.style.justifyContent = 'space-between';
+
+  // Lock button
+  const lockBtn = document.createElement('button');
+  lockBtn.textContent = "🔒 Verrouiller";
+  lockBtn.style.cssText = `
+    flex: 1;
+    margin-right: 6px;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    background: var(--ios-active-blue);
+    color: var(--ios-active-label);
+    font-weight: 600;
+    cursor: pointer;
+  `;
+  lockBtn.onclick = () => { setDoor(true); overlay.remove(); };
+
+  // Unlock button
+  const unlockBtn = document.createElement('button');
+  unlockBtn.textContent = "🔓 Déverrouiller";
+  unlockBtn.style.cssText = `
+    flex: 1;
+    margin-left: 6px;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    background: var(--ios-active-label);
+    color: var(--ios-system-bg);
+    font-weight: 600;
+    cursor: pointer;
+  `;
+  unlockBtn.onclick = () => { setDoor(false); overlay.remove(); };
+
+  btnContainer.appendChild(lockBtn);
+  btnContainer.appendChild(unlockBtn);
+  popup.appendChild(btnContainer);
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
 }
+
+// Set door state
+let doorLocked = true;
+function setDoor(locked) {
+  doorLocked = locked;
+  const icon = document.getElementById('door-icon');
+  icon.textContent = doorLocked ? '🔒' : '🔓';
+  icon.classList.toggle('unlocked', !doorLocked);
+
+  showDoorPopup(doorLocked ? "Verrouillé 🔒" : "Déverrouillé 🔓");
+}
+
+// Popup feedback
+function showDoorPopup(message) {
+  const popup = document.createElement('div');
+  popup.textContent = message;
+  popup.style.cssText = `
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ios-active-blue);
+    color: var(--ios-active-label);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  `;
+  document.body.appendChild(popup);
+  requestAnimationFrame(() => popup.style.opacity = 1);
+  setTimeout(() => {
+    popup.style.opacity = 0;
+    setTimeout(() => popup.remove(), 300);
+  }, 1500);
+}
+
+
 
 // Scene activation
 function activateScene(sceneName) {
