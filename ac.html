@@ -25,10 +25,9 @@ body {
     color: white;
 }
 
-/* 🔙 BACK BUTTON (TOP LEFT) */
 .back {
     position: fixed;
-    top: calc(env(safe-area-inset-top) + 14px);
+    top: calc(env(safe-area-inset-top) + 30px);
     left: 14px;
     background: var(--glass);
     backdrop-filter: blur(20px);
@@ -40,6 +39,17 @@ body {
     cursor: pointer;
     z-index: 100;
 }
+
+.top-label {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 40px);
+    right: 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    z-index: 100;
+}
+
 
 .card {
     width: 90vw;
@@ -116,6 +126,11 @@ svg {
 <button class="back" onclick="location.href='https://congopokemon.store/2026-smarthome/home'">
     ← Back
 </button>
+<div class="top-label" id="topLabel">
+    Living Room
+</div>
+
+
 <div id="card" class="card cold">
     <div id="temp" class="temp">24°</div>
 
