@@ -161,21 +161,6 @@ body {
     letter-spacing: 1px;
 }
 
-/* === BOTTOM MENU === */
-.menu {
-    margin-top: 26px;
-    display: flex;
-    justify-content: center;
-}
-
-.menu button {
-    padding: 14px 40px;
-    border-radius: 30px;
-    background: var(--glass);
-    border: 1px solid #444;
-    color: white;
-    font-size: 15px;
-}
 .rocker-row {
     display: flex;
     justify-content: space-around; /* spaces VOLUME, D-PAD, CHANNEL evenly */
@@ -234,6 +219,46 @@ body {
 .ok:active {
     transform: scale(0.95);
     box-shadow: 0 2px 6px var(--accent);
+}
+.bottom-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 24px;
+    padding-bottom: env(safe-area-inset-bottom);
+    gap: 16px;
+}
+
+.bottom-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.bottom-btn button {
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bottom-btn button:active {
+    background: var(--accent);
+    color: black;
+    transform: scale(0.95);
+}
+
+.bottom-btn .label {
+    font-size: 11px;
+    opacity: 0.6;
+    color: white;
+    letter-spacing: 0.5px;
 }
 
 
@@ -308,12 +333,23 @@ body {
 
     </div>
 
-    <!-- MENU BUTTON -->
-    <div class="menu">
-        <button onclick="send('HOME')">MENU PRINCIPAL</button>
+</div>
+<!-- BOTTOM BUTTONS -->
+<div class="bottom-buttons">
+    <div class="bottom-btn">
+        <button onclick="send('MUTE')">🔇</button>
+        <div class="label">MUTE</div>
+    </div>
+    <div class="bottom-btn">
+        <button onclick="send('PARAM')">⚙️</button>
+        <div class="label">PARAM</div>
+    </div>
+    <div class="bottom-btn">
+        <button onclick="send('INPUT')">📺</button>
+        <div class="label">INPUT</div>
     </div>
 </div>
-
+<br>
 
 </div>
 
