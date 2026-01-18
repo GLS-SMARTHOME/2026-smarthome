@@ -5,95 +5,196 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Light Pro 2026</title>
 <style>
-:root { --accent-glow: rgba(0,210,255,0.6); --accent-solid:#00d2ff; }
-body { background:#0f0f1a; min-height:100vh; display:flex; justify-content:center; align-items:center; font-family:sans-serif; margin:0; color:white; }
-.glass-panel { background: rgba(255,255,255,0.02); backdrop-filter:blur(25px); border-radius:30px; width:380px; height:600px; display:flex; flex-direction:column; overflow:hidden;}
-.header { padding:25px; text-align:left; background: rgba(255,255,255,0.03);}
-.list-viewport { flex:1; overflow-y:auto; padding:10px 0; scrollbar-width:none; }
-.list-viewport::-webkit-scrollbar { display:none; }
-.list-item { display:flex; justify-content:space-between; align-items:center; padding:18px 20px; margin:10px 15px; border-radius:20px; background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); transition:all 0.4s ease; position:relative; }
-.list-item:has(.switch:checked) { background: rgba(0,210,255,0.1); border-color: rgba(0,210,255,0.3); box-shadow:0 0 20px rgba(0,210,255,0.15); }
-.label-box span:first-child { display:block; font-weight:600; transition: color 0.3s; }
-.list-item:has(.switch:checked) .label-box span:first-child { color: var(--accent-solid); text-shadow:0 0 10px var(--accent-glow);}
-.switch { appearance:none; width:44px; height:24px; background: rgba(255,255,255,0.1); border-radius:20px; position:relative; cursor:pointer; transition:0.3s; }
-.switch:checked { background: var(--accent-solid); }
-.switch::before { content:''; position:absolute; width:18px; height:18px; background:white; border-radius:50%; top:3px; left:3px; transition:0.3s cubic-bezier(0.45,0.05,0.55,0.95);}
-.switch:checked::before { transform: translateX(20px); }
-.feedback { padding:10px; text-align:center; font-size:0.8rem; opacity:0.7; transition:opacity 0.3s; }
-.back { background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 12px 18px; border-radius: 15px; cursor: pointer; }
-.main-tile { grid-column: span 2; background: var(--card); padding: 30px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+:root {
+    --accent-glow: rgba(0,210,255,0.6);
+    --accent-solid: #00d2ff;
+    --bg-color: #0f0f1a;
+}
 
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg-color);
+    color: white;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
 
+.glass-panel {
+    background: rgba(255,255,255,0.02);
+    backdrop-filter: blur(25px);
+    border-radius: 25px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.header {
+    padding: 15px 20px 10px 20px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.header h2 {
+    margin: 10px 0 0 0;
+    font-size: 1.6rem;
+    letter-spacing: 0.5px;
+}
+
+.back {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.back:active {
+    background: rgba(0,210,255,0.15);
+}
+
+.list-viewport {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+    scrollbar-width: none;
+}
+
+.list-viewport::-webkit-scrollbar { display: none; }
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    margin: 8px 15px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 1.05rem;
+}
+
+.list-item:has(.switch:checked) {
+    background: rgba(0,210,255,0.1);
+    border-color: rgba(0,210,255,0.3);
+    box-shadow: 0 0 20px rgba(0,210,255,0.15);
+}
+
+.label-box span:first-child {
+    display: block;
+    font-weight: 600;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.switch {
+    appearance: none;
+    width: 50px;
+    height: 28px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.switch::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+.switch:checked {
+    background: var(--accent-solid);
+}
+
+.switch:checked::before {
+    transform: translateX(22px);
+}
+
+.feedback {
+    padding: 10px;
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.02);
+}
 </style>
 </head>
 <body>
+
 <div class="glass-panel">
     <div class="header">
-        <div class="nav"><button class="back" onclick="location.href='https://congopokemon.store/2026-smarthome/home'">← Back</button></div>
-<br>
-        <h2 style="margin:0;">LUMIERES</h2>
-        
+        <button class="back" onclick="location.href='https://congopokemon.store/2026-smarthome/home'">← Back</button>
     </div>
+
     <div class="list-viewport" id="list"></div>
+
     <div class="feedback" id="feedback">Conecte-se à rede do ESP32 para controlar as luzes</div>
 </div>
 
-
 <script>
 const rooms = ["Cozinha","Sala de Estar","Suíte Master","Banheiro","Escritório","Corredor","Garagem","Varanda","Jardim","Hall","Lavanderia","Quarto Visitas","Sótão","Piscina","Fachada"];
+const colors = ['#00d2ff','#ff9500','#ff2d55','#32d74b','#bf5af2','#ff453a','#5ac8fa','#ff9f0a','#64d2ff','#ff375f','#ffcc00','#30d158','#0a84ff','#ff9f0a','#ff3b30'];
+
 const list = document.getElementById('list');
 const feedback = document.getElementById('feedback');
 
-
-// Generate list items
+// Generate room list items
 rooms.forEach((name,i)=>{
     const item = document.createElement('div');
     item.className='list-item';
     item.innerHTML = `<div class="label-box"><span>${name}</span></div><input type="checkbox" class="switch" id="switch${i}">`;
     list.appendChild(item);
-});
 
-
-// Fetch and update states from ESP
-function updateStates(){
-    fetch('/status').then(res=>res.json()).then(states=>{
-        states.forEach((state,i)=>{
-            const sw = document.getElementById(`switch${i}`);
-            if(sw.checked !== state) sw.checked = state;
-        });
-    });
-}
-
-
-// Switch listeners
-rooms.forEach((name,i)=>{
-    const sw = document.getElementById(`switch${i}`);
+    const sw = item.querySelector('.switch');
+    const label = item.querySelector('span');
     sw.addEventListener('change', ()=>{
-        fetch(`/toggle?index=${i}&state=${sw.checked}`);
+        if(sw.checked){
+            label.style.color = colors[i];
+            label.style.textShadow = `0 0 10px ${colors[i]}`;
+        } else {
+            label.style.color = 'white';
+            label.style.textShadow = 'none';
+        }
         feedback.textContent = `${name} ${sw.checked?'ligada':'desligada'}`;
         feedback.style.opacity = 1;
         setTimeout(()=>feedback.style.opacity=0.7, 2000);
     });
 });
 
+// Polling ESP32 states
+function updateStates(){
+    fetch('/status').then(res=>res.json()).then(states=>{
+        states.forEach((state,i)=>{
+            const sw = document.getElementById(`switch${i}`);
+            if(sw.checked !== state) sw.checked = state;
+            const label = sw.previousElementSibling.querySelector('span');
+            label.style.color = state ? colors[i] : 'white';
+            label.style.textShadow = state ? `0 0 10px ${colors[i]}` : 'none';
+        });
+    }).catch(e=>console.log("ESP not connected"));
+}
 
-// Master switch
-const masterSwitch = document.createElement('div');
-masterSwitch.className='list-item';
-masterSwitch.innerHTML = `<div class="label-box"><span>Todos</span></div><input type="checkbox" id="allSwitch" class="switch">`;
-list.prepend(masterSwitch);
-document.getElementById('allSwitch').addEventListener('change', ()=>{
-    const state = document.getElementById('allSwitch').checked;
-    fetch(`/toggleAll?state=${state}`);
-    document.querySelectorAll('.list-item .switch').forEach(s=>s.checked=state);
-    feedback.textContent = `Todas as luzes ${state?'ligadas':'desligadas'}`;
-    feedback.style.opacity = 1;
-    setTimeout(()=>feedback.style.opacity=0.7, 2000);
-});
-
-
-// Polling for real-time sync
 setInterval(updateStates, 1000);
 </script>
+
 </body>
 </html>
