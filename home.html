@@ -79,53 +79,89 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
 <h1>Ma maison</h1>
 <div class="grid">
 
-<a href="https://www.congopokemon.store/2026-smarthome/tv" class="tile">
+<!-- TV -->
+<a href="https://www.congopokemon.store/2026-smarthome/tv" class="tile" onclick="return navigateWithTimeout(this.href)">
   <div class="icon-wrap"><div class="tv-icon"></div></div>
   <span class="label">TÉLÉ SALON</span>
 </a>
   
-<a href="https://www.congopokemon.store/2026-smarthome/tv" class="tile">
+<a href="https://www.congopokemon.store/2026-smarthome/tv" class="tile" onclick="return navigateWithTimeout(this.href)">
   <div class="icon-wrap"><div class="tv-icon"></div></div>
   <span class="label">TÉLÉ CHAMBRE</span>
 </a>
 
-<a href="https://www.congopokemon.store/2026-smarthome/ac" class="tile">
+<!-- AC -->
+<a href="https://www.congopokemon.store/2026-smarthome/ac" class="tile" onclick="return navigateWithTimeout(this.href)">
   <div class="icon-wrap">❄️</div>
   <span class="label">CLIM SALON</span>
 </a>
   
-<a href="https://www.congopokemon.store/2026-smarthome/ac" class="tile">
+<a href="https://www.congopokemon.store/2026-smarthome/ac" class="tile" onclick="return navigateWithTimeout(this.href)">
   <div class="icon-wrap">❄️</div>
   <span class="label">CLIM CHAMBRE</span>
 </a>
 
-<a href="https://www.congopokemon.store/2026-smarthome/lights" class="tile">
+<!-- Lights -->
+<a href="https://www.congopokemon.store/2026-smarthome/lights" class="tile" onclick="return navigateWithTimeout(this.href)">
   <div class="icon-wrap">💡</div>
   <span class="label">LUMIÈRES</span>
 </a>
-<a href="" class="tile">
+
+<!-- Door Lock -->
+<a href="#" class="tile" onclick="toggleDoor(); return false;">
   <div class="icon-wrap" id="door-icon">🔒</div>
   <span class="label">SERRURE</span>
 </a>
-<a href="#" class="tile" onclick="activateScene('MATIN')">
+
+<!-- Scene Buttons -->
+<a href="#" class="tile" onclick="activateScene('MATIN'); return false;">
   <div class="icon-wrap">☀️</div>
-  <span class="label">BONJOUR</span>
+  <span class="label">SCÈNE MATIN</span>
 </a>
 
-<a href="#" class="tile" onclick="activateScene('AU REVOIR')">
+<a href="#" class="tile" onclick="activateScene('AU REVOIR'); return false;">
   <div class="icon-wrap">🚪</div>
-  <span class="label">AU REVOIR</span>
+  <span class="label">SCÈNE AU REVOIR</span>
 </a>
+
+</div>
+</div>
 
 <script>
+// Door toggle
+let doorLocked = true;
+function toggleDoor() {
+  doorLocked = !doorLocked;
+  document.getElementById('door-icon').textContent = doorLocked ? '🔒' : '🔓';
+}
+
+// Scene activation
 function activateScene(sceneName) {
   alert(sceneName + " activée !");
-  // You can add code here to send commands to your ESP32 / smart home
+  // Here you can add code to send command to ESP32 or smart home backend
 }
+
+// Universal navigation with timeout
+function navigateWithTimeout(url) {
+  event.preventDefault();
+  window.open(url, "_self");
+  setTimeout(() => {
+    if (window.location.href !== url) {
+      window.location.href = "/"; // main dashboard page
+    }
+  }, 5000); // 5 seconds timeout
+  return false;
+}
+
+// Global page timeout: go back home if page unresponsive
+const PAGE_TIMEOUT_MS = 5000;
+let pageTimeout = setTimeout(() => {
+  window.location.href = "https://www.congopokemon.store/2026-smarthome/home"; // main dashboard
+}, PAGE_TIMEOUT_MS);
+window.addEventListener("load", () => clearTimeout(pageTimeout));
+['click','keydown','touchstart'].forEach(evt => {
+  window.addEventListener(evt, () => clearTimeout(pageTimeout));
+});
 </script>
-
-
-</div>
-</div>
 </body>
 </html>
