@@ -1,35 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 Ultra Remote</title>
-    <style>
-        :root { --bg: #0a0a0a; --glass: rgba(255,255,255,0.06); --accent: #00d1ff; --danger: #ff3b30; }
-        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .remote-body { background: #1c1c1e; width: 100%; padding: 35px 15px; border-radius: 55px; box-shadow: 0 40px 80px rgba(0,0,0,0.9); border: 1px solid #333; }
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 10px; }
-        .num-btn { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 18px 0; border-radius: 18px; font-size: 20px; font-weight: 500; cursor: pointer; backdrop-filter: blur(10px); }
-        .num-btn:active { background: var(--accent); color: black; transform: scale(0.95); }
-        .rocker-section { display: flex; justify-content: space-between; align-items: center; margin: 30px 10px; }
-        .rocker { display: flex; flex-direction: column; background: var(--glass); width: 75px; border-radius: 38px; border: 1px solid rgba(255,255,255,0.1); }
-        .rocker button { background: none; border: none; color: white; padding: 22px 0; font-size: 24px; cursor: pointer; }
-        .rocker button:active { background: rgba(255,255,255,0.15); border-radius: 38px; }
-        .divider { height: 1px; background: rgba(255,255,255,0.1); width: 60%; margin: 0 auto; }
-        .center-stack { display: flex; flex-direction: column; gap: 15px; align-items: center; }
-        .mute-btn { background: var(--danger); border: none; color: white; width: 55px; height: 55px; border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,59,48,0.3); }
-        .undo-btn { background: #444; border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 18px; cursor: pointer; }
-        .label { font-size: 10px; opacity: 0.5; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        .power-bar { text-align: right; padding-right: 15px; margin-bottom: 10px; }
-        .back { background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 12px 18px; border-radius: 15px; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ESP32 Ultra Remote</title>
+
+<style>
+:root {
+    --bg: #000;
+    --panel: #1c1c1e;
+    --glass: rgba(255,255,255,0.08);
+    --accent: #00d1ff;
+    --danger: #ff3b30;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #fff;
+}
+
+/* === PHONE CONTAINER === */
+.remote {
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom);
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(#000, #111);
+}
+
+/* === TOP BAR === */
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px;
+}
+
+.back {
+    background: var(--glass);
+    border: 1px solid #333;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+}
+
+.power {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 2px solid var(--danger);
+    background: none;
+    color: var(--danger);
+    font-size: 22px;
+}
+
+/* === NUMPAD === */
+.numpad {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.num-btn {
+    height: 64px;
+    font-size: 22px;
+    font-weight: 500;
+    border-radius: 18px;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+}
+
+.num-btn:active {
+    background: var(--accent);
+    color: black;
+    transform: scale(0.96);
+}
+
+/* === CONTROL ZONE === */
+.controls {
+    margin-top: auto;
+    padding-top: 24px;
+}
+
+/* Rockers */
+.rocker-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rocker-wrap {
+    text-align: center;
+}
+
+.rocker {
+    width: 80px;
+    border-radius: 40px;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.15);
+    overflow: hidden;
+}
+
+.rocker button {
+    width: 100%;
+    height: 60px;
+    font-size: 26px;
+    background: none;
+    border: none;
+    color: white;
+}
+
+.rocker button:active {
+    background: rgba(255,255,255,0.2);
+}
+
+.divider {
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+}
+
+/* Center buttons */
+.center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.mute {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--danger);
+    border: none;
+    color: white;
+    font-size: 22px;
+}
+
+.undo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #444;
+    border: none;
+    color: white;
+    font-size: 18px;
+}
+
+.label {
+    margin-top: 6px;
+    font-size: 11px;
+    opacity: 0.5;
+    letter-spacing: 1px;
+}
+
+/* === BOTTOM MENU === */
+.menu {
+    margin-top: 26px;
+    display: flex;
+    justify-content: center;
+}
+
+.menu button {
+    padding: 14px 40px;
+    border-radius: 30px;
+    background: var(--glass);
+    border: 1px solid #444;
+    color: white;
+    font-size: 15px;
+}
+</style>
 </head>
+
 <body>
-<div class="remote-body">
-        <div class="nav"><button class="back" onclick="location.href='https://congopokemon.store/2026-smarthome/home'">← Back</button></div>
-    <div class="power-bar">
-        <button style="background:none; border:2px solid var(--danger); color:var(--danger); width:45px; height:45px; border-radius:50%; font-weight:bold;" onclick="send('POWER')">⏻</button>
+<div class="remote">
+
+    <!-- TOP -->
+    <div class="top">
+        <button class="back" onclick="location.href='https://congopokemon.store/2026-smarthome/home'">← Back</button>
+        <button class="power" onclick="send('POWER')">⏻</button>
     </div>
+
+    <!-- NUMPAD -->
     <div class="numpad">
         <button class="num-btn" onclick="send('1')">1</button>
         <button class="num-btn" onclick="send('2')">2</button>
@@ -40,42 +199,54 @@
         <button class="num-btn" onclick="send('7')">7</button>
         <button class="num-btn" onclick="send('8')">8</button>
         <button class="num-btn" onclick="send('9')">9</button>
-        <div></div><button class="num-btn" onclick="send('0')">0</button><div></div>
+        <div></div>
+        <button class="num-btn" onclick="send('0')">0</button>
+        <div></div>
     </div>
-    <div class="rocker-section">
-        <div style="text-align:center;">
-            <div class="rocker">
-                <button onclick="send('VOL_UP')">+</button>
-                <div class="divider"></div>
-                <button onclick="send('VOL_DOWN')">-</button>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+        <div class="rocker-row">
+
+            <div class="rocker-wrap">
+                <div class="rocker">
+                    <button onclick="send('VOL_UP')">+</button>
+                    <div class="divider"></div>
+                    <button onclick="send('VOL_DOWN')">−</button>
+                </div>
+                <div class="label">VOLUME</div>
             </div>
-            <div class="label">Volume</div>
-        </div>
-        <div class="center-stack">
-            <button class="mute-btn" onclick="send('MUTE')">🔇</button>
-            <button class="undo-btn" onclick="send('UNDO')">⟲</button>
-            <div class="label">Undo</div>
-        </div>
-        <div style="text-align:center;">
-            <div class="rocker">
-                <button onclick="send('CH_UP')">▲</button>
-                <div class="divider"></div>
-                <button onclick="send('CH_DOWN')">▼</button>
+
+            <div class="center">
+                <button class="mute" onclick="send('MUTE')">🔇</button>
+                <button class="undo" onclick="send('UNDO')">⟲</button>
+                <div class="label">UNDO</div>
             </div>
-            <div class="label">Channel</div>
+
+            <div class="rocker-wrap">
+                <div class="rocker">
+                    <button onclick="send('CH_UP')">▲</button>
+                    <div class="divider"></div>
+                    <button onclick="send('CH_DOWN')">▼</button>
+                </div>
+                <div class="label">CHANNEL</div>
+            </div>
+
+        </div>
+
+        <div class="menu">
+            <button onclick="send('HOME')">MENU PRINCIPAL</button>
         </div>
     </div>
-    <div style="text-align:center; margin-top:20px;">
-        <button style="background:var(--glass); border:1px solid #444; color:white; padding:12px 35px; border-radius:25px; font-size:14px;" onclick="send('HOME')">MENU PRINCIPAL</button>
-    </div>
+
 </div>
+
 <script>
-    function send(cmd) {
-        if (window.navigator.vibrate) window.navigator.vibrate(40);
-        fetch(`/ir?cmd=${cmd}`).then(response => {
-            console.log("Sent: " + cmd);
-        }).catch(() => console.log("ESP32 Error"));
-    }
+function send(cmd) {
+    if (navigator.vibrate) navigator.vibrate(40);
+    fetch(`/ir?cmd=${cmd}`).catch(() => {});
+}
 </script>
+
 </body>
 </html>
