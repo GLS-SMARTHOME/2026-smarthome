@@ -119,6 +119,16 @@ svg {
 .mode.active {
     background: rgba(255,255,255,.28);
 }
+#power {
+    font-size: 16px;
+    background: rgba(255,255,255,0.18);
+    transition: transform .15s, background .3s, opacity .3s;
+}
+
+#power.active {
+    background: rgba(255,255,255,0.35);
+}
+
 </style>
 </head>
 
@@ -139,11 +149,13 @@ svg {
         <path id="progress" class="progress"/>
         <circle id="knob" class="knob" r="14"/>
     </svg>
+    
+<div class="modes">
+    <div id="cold" class="mode active">❄️ Cold</div>
+    <div id="power" class="mode">⏻</div>
+    <div id="heat" class="mode">🔥 Heat</div>
+</div>
 
-    <div class="modes">
-        <div id="cold" class="mode active">❄️ Cold</div>
-        <div id="heat" class="mode">🔥 Heat</div>
-    </div>
 </div>
 
 <script>
@@ -208,6 +220,46 @@ heat.onclick = () => {
     cold.classList.remove('active');
     update();
 };
+
+let acOn = true; // AC starts ON
+
+const powerBtn = document.getElementById('power');
+const coldBtn = document.getElementById('cold');
+const heatBtn = document.getElementById('heat');
+const sliderEl = document.getElementById('slider');
+
+function updateControls() {
+    // Disable or enable slider
+    sliderEl.style.pointerEvents = acOn ? 'auto' : 'none';
+    sliderEl.style.opacity = acOn ? 1 : 0.5; // visual feedback
+
+    // Disable/enable mode buttons
+    [coldBtn, heatBtn].forEach(btn => {
+        btn.style.pointerEvents = acOn ? 'auto' : 'none';
+        btn.style.opacity = acOn ? 1 : 0.5;
+    });
+
+    // Update card class for visual OFF state
+    if (!acOn) {
+        card.style.opacity = 0.5; // dim card
+    } else {
+        card.style.opacity = 1;
+    }
+
+    // Update power button active state
+    powerBtn.classList.toggle('active', acOn);
+}
+
+// Initial update
+updateControls();
+
+// Power button click
+powerBtn.onclick = () => {
+    acOn = !acOn;
+    updateControls();
+};
+
+
 </script>
 
 </body>
