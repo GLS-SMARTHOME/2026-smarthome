@@ -107,6 +107,23 @@ h1 { font-size:34px; font-weight:700; margin-bottom:28px; letter-spacing:-0.5px;
   <div class="icon-wrap" id="door-icon">🔒</div>
   <span class="label">SERRURE</span>
 </a>
+<a href="#" class="tile" onclick="activateScene('MATIN')">
+  <div class="icon-wrap">☀️</div>
+  <span class="label">BONJOUR</span>
+</a>
+
+<a href="#" class="tile" onclick="activateScene('AU REVOIR')">
+  <div class="icon-wrap">🚪</div>
+  <span class="label">AU REVOIR</span>
+</a>
+
+<script>
+function activateScene(sceneName) {
+  alert(sceneName + " activée !");
+  // You can add code here to send commands to your ESP32 / smart home
+}
+</script>
+
 
 </div>
 </div>
