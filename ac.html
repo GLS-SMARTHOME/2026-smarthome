@@ -1,68 +1,215 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AC Sync 2026</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC Curve Gauge 2026</title>
     <style>
-        :root { --bg: #090a0c; --card: #15171c; --accent: #38bdf8; --text: #f8fafc; --dim: #94a3b8; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100%; margin: 0; }
-        .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); }
-        .nav { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
-        .back { background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 12px 18px; border-radius: 15px; cursor: pointer; }
-        .main-tile { grid-column: span 2; background: var(--card); padding: 30px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .temp { font-size: 5.5rem; font-weight: 800; margin: 0; line-height:1; }
-        .tile { background: var(--card); border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); font-size: 1.8rem; }
-        .modes { grid-column: span 2; display: flex; gap: 8px; }
-        .m-btn { flex: 1; padding: 15px; border-radius: 12px; border: none; background: var(--card); color: var(--dim); font-weight: bold; cursor: pointer; }
-        .m-btn.active { background: var(--accent); color: var(--bg); }
-        .pwr { grid-column: span 2; background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; font-weight: bold; }
-        .off { opacity: 0.2; pointer-events: none; filter: grayscale(1); }
+        :root {
+            --primary-color: #00d4ff; /* Cold por padrão */
+            --bg-card: #ffffff;
+        }
+
+        body {
+            background: #eef2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .ac-container {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 50px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 320px;
+            position: relative;
+        }
+
+        /* SVG Gauge e Slider Curvo */
+        .gauge-wrapper {
+            position: relative;
+            width: 250px;
+            height: 180px;
+            margin: 0 auto;
+        }
+
+        svg { width: 100%; height: 100%; overflow: visible; }
+        
+        .track { fill: none; stroke: #f0f0f0; stroke-width: 12; stroke-linecap: round; }
+        .progress { 
+            fill: none; 
+            stroke: var(--primary-color); 
+            stroke-width: 12; 
+            stroke-linecap: round; 
+            stroke-dasharray: 251.2; /* Circunferência total do arco */
+            stroke-dashoffset: 251.2;
+            transition: stroke-dashoffset 0.1s ease, stroke 0.4s;
+        }
+
+        /* O botão "bolinha" que desliza na curva */
+        .handle {
+            fill: white;
+            stroke: var(--primary-color);
+            stroke-width: 4;
+            cursor: pointer;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+            transition: stroke 0.4s;
+        }
+
+        .temp-text {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #temp-num { font-size: 4rem; font-weight: 800; color: #333; display: block; }
+        .unit { font-size: 1.5rem; color: #888; vertical-align: top; }
+
+        /* Botões de Modo */
+        .mode-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            background: transparent;
+            color: #666;
+        }
+
+        .btn.active {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-cold.active { color: #00d4ff; }
+        .btn-heat.active { color: #ff8c00; }
     </style>
 </head>
 <body>
-<div class="bento" id="ac">
-    <div class="nav"><button class="back" onclick="location.href='https://congopokemon.store/2026-smarthome/home'">← Back</button><b>LIVING ROOM</b></div>
-    <div id="ui-body" class="main-tile">
-        <h1 class="temp" id="tDisp">22°</h1>
-        <small id="mLabel" style="color:var(--accent); letter-spacing:2px; font-weight:bold;">COOLING</small>
+
+<div class="ac-container">
+    <div class="gauge-wrapper">
+        <svg viewBox="0 0 120 100">
+            <!-- Caminho da curva (Arco de 180 graus) -->
+            <path id="curve" class="track" d="M20,80 A40,40 0 1,1 100,80" />
+            <path id="progress-bar" class="progress" d="M20,80 A40,40 0 1,1 100,80" />
+            <!-- Botão deslizante -->
+            <circle id="knob" class="handle" r="6" cx="20" cy="80" />
+        </svg>
+
+        <div class="temp-text">
+            <span id="temp-num">22</span><span class="unit">°C</span>
+        </div>
     </div>
-    <div class="tile" onclick="adj(-1)">−</div><div class="tile" onclick="adj(1)">+</div>
-    <div class="modes">
-        <button id="bC" class="m-btn active" onclick="setM('cool')">COOL</button>
-        <button id="bH" class="m-btn" onclick="setM('heat')">HEAT</button>
+
+    <div class="mode-selector">
+        <button id="coldBtn" class="btn btn-cold active" onclick="setMode('cold')">COLD</button>
+        <button id="heatBtn" class="btn btn-heat" onclick="setMode('heat')">HEAT</button>
     </div>
-    <div class="pwr" onclick="tog()" id="pBtn">POWER: ON</div>
 </div>
+
 <script>
-    let t=22, m='cool', p=true;
-    let ws = new WebSocket(`ws://${window.location.hostname}/ws`);
+    const knob = document.getElementById('knob');
+    const progressBar = document.getElementById('progress-bar');
+    const curve = document.getElementById('curve');
+    const tempNum = document.getElementById('temp-num');
+    const pathLength = curve.getTotalLength();
 
+    let isDragging = false;
 
-    ws.onmessage = (e) => {
-        let data = JSON.parse(e.data);
-        t = data.temp; m = data.mode; p = data.power;
-        updateUI();
+    // Função para atualizar a posição do medidor e o valor
+    function updateGauge(point) {
+        const bbox = curve.parentElement.getBoundingClientRect();
+        const x = point.clientX - bbox.left;
+        const y = point.clientY - bbox.top;
+
+        // Lógica simplificada para encontrar o ponto mais próximo na curva
+        let bestPoint = curve.getPointAtLength(0);
+        let minDistance = Infinity;
+        let bestLen = 0;
+
+        for (let i = 0; i <= pathLength; i += 2) {
+            const p = curve.getPointAtLength(i);
+            const dist = Math.sqrt((p.x * (bbox.width/120) - x)**2 + (p.y * (bbox.height/100) - y)**2);
+            if (dist < minDistance) {
+                minDistance = dist;
+                bestPoint = p;
+                bestLen = i;
+            }
+        }
+
+        // Atualiza visual
+        knob.setAttribute('cx', bestPoint.x);
+        knob.setAttribute('cy', bestPoint.y);
+        
+        const pct = bestLen / pathLength;
+        progressBar.style.strokeDashoffset = pathLength - (pct * pathLength);
+        
+        // Mapeia valor entre 16 e 30 graus
+        const temp = Math.round(16 + (pct * 14));
+        tempNum.innerText = temp;
+    }
+
+    // Eventos de Mouse/Touch
+    const startDrag = () => isDragging = true;
+    const stopDrag = () => isDragging = false;
+    const doDrag = (e) => {
+        if (!isDragging) return;
+        const event = e.touches ? e.touches[0] : e;
+        updateGauge(event);
     };
 
+    knob.addEventListener('mousedown', startDrag);
+    window.addEventListener('mouseup', stopDrag);
+    window.addEventListener('mousemove', doDrag);
+    
+    knob.addEventListener('touchstart', startDrag);
+    window.addEventListener('touchend', stopDrag);
+    window.addEventListener('touchmove', doDrag);
 
-    function updateUI() {
-        document.getElementById('tDisp').innerText = t + "°";
-        document.getElementById('pBtn').innerText = p ? "POWER: ON" : "POWER: OFF";
-        document.getElementById('ui-body').classList.toggle('off', !p);
-        document.getElementById('bC').classList.toggle('active', m === 'cool');
-        document.getElementById('bH').classList.toggle('active', m === 'heat');
-        document.getElementById('mLabel').innerText = m.toUpperCase();
+    // Mudança de Modo (Cores)
+    function setMode(mode) {
+        const root = document.documentElement;
+        const coldBtn = document.getElementById('coldBtn');
+        const heatBtn = document.getElementById('heatBtn');
+
+        if (mode === 'cold') {
+            root.style.setProperty('--primary-color', '#00d4ff');
+            coldBtn.classList.add('active');
+            heatBtn.classList.remove('active');
+        } else {
+            root.style.setProperty('--primary-color', '#ff8c00');
+            heatBtn.classList.add('active');
+            coldBtn.classList.remove('active');
+        }
     }
 
-
-    function send(){ if(ws.readyState===1) ws.send(JSON.stringify({temp:t,mode:m,power:p})); }
-    function tog(){ p=!p; send(); }
-    function adj(v){
-        let next = t + v;
-        if(next >= 16 && next <= 30) { t = next; send(); }
-    }
-    function setM(mode){ m=mode; send(); }
-    ws.onclose = () => setTimeout(()=>location.reload(), 2000);
+    // Inicialização na temperatura 22
+    window.onload = () => {
+        const initialLen = ((22 - 16) / 14) * pathLength;
+        const p = curve.getPointAtLength(initialLen);
+        knob.setAttribute('cx', p.x);
+        knob.setAttribute('cy', p.y);
+        progressBar.style.strokeDashoffset = pathLength - initialLen;
+    };
 </script>
+
 </body>
 </html>
